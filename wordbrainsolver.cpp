@@ -1,9 +1,17 @@
-#include<iostream>
-#include<string>
+// Copyright 2019 zeyu song zeyusong@bu.edu
 #include<fstream>
+#include<iostream>
+#include<set>
+#include<string>
 #include<vector>
-#include <set>
-using namespace std;
+using std::set;
+using std::string;
+using std::ifstream;
+using std::iostream;
+using std::vector;
+using std::cout;
+using std::cin;
+
 
 struct TrieNode {
   TrieNode *children[26];
@@ -54,10 +62,13 @@ void drop(vector<vector<char>> *board) {
     }
   }
 }
-
+// [a,b,c
+// d,e,f
+// g,h,j]
 
 void dfs(set<vector<string>> *p_allres, vector<vector<char>> *board, \
-  int i, int j, TrieNode *p, vector<string> result, vector<string>ast, int x, TrieNode *root) {
+         int i, int j, TrieNode *p, vector<string> result, \
+         vector<string>ast, int x, TrieNode *root) {
   char c = board->at(i)[j];
   if (c == '#' || !p->children[c - 'a']) return;
   vector<vector<char>> nboard = *board;
@@ -71,8 +82,8 @@ void dfs(set<vector<string>> *p_allres, vector<vector<char>> *board, \
   if (p->word.size() == ast.at(x).size()) {
     string wo = p->word;
     int i = 0;
-    while (i < ast.at(x).size() && ast.at(x).at(i) != '*' ) {
-      if (ast.at(x).at(i) != wo.at(i)) return;
+    while ( i < ast.at(x).size() ) {
+      if (ast.at(x).at(i) != wo.at(i) && ast.at(x).at(i) != '*') return;
       i++;
     }
     newresult.push_back(p->word);
@@ -81,13 +92,7 @@ void dfs(set<vector<string>> *p_allres, vector<vector<char>> *board, \
       return;
     }
     tmp = p -> word;
-    p->word = "";
     drop(newboard);
-    // for (int i = 0; i < newboard.size(); i++) {
-    //     for (int j = 0; j < newboard.size(); j++) {
-    //         std::cout << newboard[i][j];
-    //     }
-    // }
     x++;
     p = root;
     for (int i = 0; i < newboard->size(); i++) {
@@ -95,31 +100,30 @@ void dfs(set<vector<string>> *p_allres, vector<vector<char>> *board, \
         dfs(p_allres, newboard, i, j, root, newresult, ast, x, root);
       }
     }
-    pt -> word = tmp;
   } else {
     if (i > 0) dfs(p_allres, newboard, i - 1, j, p, newresult, ast, x, root);
     if (i < newboard->size() - 1) dfs(p_allres, newboard, i + 1, \
-      j, p, newresult, ast, x, root);
+                                        j, p, newresult, ast, x, root);
     if (j > 0) dfs(p_allres, newboard, i, j - 1, p, newresult, ast, x, root);
     if (j < newboard->size() - 1) dfs(p_allres, newboard, i, j + 1, \
-      p, newresult, ast, x, root);
-    if (j > 0 && i > 0) dfs(p_allres, newboard, i - 1, j - 1, p, newresult, ast, x, root);
+                                        p, newresult, ast, x, root);
+    if (j > 0 && i > 0)
+      dfs(p_allres, newboard, i - 1, j - 1, p, newresult, ast, x, root);
     if (i > 0 && j < newboard->size() - 1) dfs(p_allres, newboard, \
-      i - 1, j + 1, p, newresult, ast, x, root);
+          i - 1, j + 1, p, newresult, ast, x, root);
     if (i < newboard->size() - 1 && j > 0) dfs(p_allres, newboard, i + 1, \
-      j - 1, p, newresult, ast, x, root);
+          j - 1, p, newresult, ast, x, root);
     if (i < newboard->size() - 1 && j < newboard[0].size() - 1) dfs(p_allres, \
-      newboard, i + 1, j + 1, p, newresult, ast, x, root);
+          newboard, i + 1, j + 1, p, newresult, ast, x, root);
   }
   newboard->at(i)[j] = c;
 }
 
-vector<vector<string>> findWords(string filename1, string filename2) {
+void findWords(string filename1, string filename2) {
   string aster, n1, n2;
-  vector<vector<string>> allres;
   TrieNode *root = buildTrie(filename1);
   TrieNode *root1 = buildTrie(filename2);
-  while(cin >> n1) {
+  while ( cin >> n1 ) {
     set<vector<string>> someres;
     std::vector<string> v, ast;
     int n = n1.size();
@@ -159,22 +163,18 @@ vector<vector<string>> findWords(string filename1, string filename2) {
         }
       }
     }
-    for (auto i:someres) {
-      for (auto j:i){
+    for ( auto i : someres ) {
+      for ( auto j : i ) {
         cout << j << ' ';
-      } 
+      }
       cout << '\n';
     }
-    cout <<'.' << '\n';
-    for (auto i : someres) allres.push_back(i);
-    allres.push_back({"."});
+    cout << '.' << '\n';
   }
-  return allres;
 }
 
 int main(int argc, char **argv) {
   string filename1 = *(argv + 1);
   string filename2 = *(argv + 2);
-
-  vector<vector<string>> res = findWords(filename1, filename2);
+  findWords(filename1, filename2);
 }
